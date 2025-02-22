@@ -317,6 +317,26 @@ const CurrencyList = ({
           decelerationRate="fast"
           snapToAlignment="center"
         />
+        <LinearGradient
+          colors={[theme.card, `${theme.card}00`]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={[
+            styles.fadeLeft,
+            Platform.OS === 'android' && { elevation: 0 }
+          ]}
+          pointerEvents="none"
+        />
+        <LinearGradient
+          colors={[`${theme.card}00`, theme.card]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={[
+            styles.fadeRight,
+            Platform.OS === 'android' && { elevation: 0 }
+          ]}
+          pointerEvents="none"
+        />
       </View>
     </View>
   );
