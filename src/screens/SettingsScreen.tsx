@@ -13,6 +13,15 @@ import { colors } from '../theme/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../theme/ThemeContext';
 import { colorSchemes, ColorScheme } from '../theme/colors';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+type RootStackParamList = {
+  Settings: undefined;
+  PrivacyPolicy: undefined;
+};
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
 
 const ColorSchemeButton = ({
   scheme,
@@ -64,6 +73,7 @@ const SettingsOption = ({
 export default function SettingsScreen() {
   const { theme, isDarkMode, toggleTheme, colorScheme, setColorScheme } = useTheme();
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<NavigationProp>();
 
   const handleRateApp = () => {
     const storeUrl = Platform.select({
@@ -80,7 +90,7 @@ export default function SettingsScreen() {
   };
 
   const handlePrivacyPolicy = () => {
-    Linking.openURL('https://your-website.com/privacy-policy');
+    navigation.navigate('PrivacyPolicy');
   };
 
   return (

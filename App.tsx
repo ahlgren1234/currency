@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Platform, View, Text, Image } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,12 +10,14 @@ import 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from './src/screens/HomeScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
+import PrivacyPolicyScreen from './src/screens/PrivacyPolicyScreen';
 import { colors } from './src/theme/colors';
 import { ThemeProvider, useTheme } from './src/theme/ThemeContext';
 
 enableScreens();
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
 const CustomHeader = ({ theme }: { theme: typeof colors }) => {
   const insets = useSafeAreaInsets();
@@ -34,6 +37,35 @@ const CustomHeader = ({ theme }: { theme: typeof colors }) => {
         </View>
       </View>
     </View>
+  );
+};
+
+const SettingsStack = () => {
+  const { theme } = useTheme();
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: theme.card,
+        },
+        headerTintColor: theme.text,
+        headerShadowVisible: false,
+      }}
+    >
+      <Stack.Screen
+        name="SettingsScreen"
+        component={SettingsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PrivacyPolicy"
+        component={PrivacyPolicyScreen}
+        options={{
+          title: 'Privacy Policy',
+          headerBackTitle: 'Back',
+        }}
+      />
+    </Stack.Navigator>
   );
 };
 
@@ -102,7 +134,7 @@ function TabNavigator() {
         />
         <Tab.Screen
           name="Settings"
-          component={SettingsScreen}
+          component={SettingsStack}
         />
       </Tab.Navigator>
     </>
