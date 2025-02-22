@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
   Image,
   Dimensions,
   KeyboardAvoidingView,
+  Keyboard,
 } from 'react-native';
 import axios from 'axios';
 import { colors } from '../theme/colors';
@@ -30,6 +31,7 @@ import Animated, {
 import { useTheme } from '../theme/ThemeContext';
 import { useLanguage } from '../i18n/LanguageContext';
 import { countryToCurrency } from '../utils/currencyData';
+import { Ionicons } from '@expo/vector-icons';
 
 const API_KEY = '062578696d00dab96b6c2855'; // You'll need to replace this with a real API key
 const API_URL = 'https://api.exchangerate-api.com/v4/latest/USD';
@@ -133,133 +135,187 @@ const CurrencyList = ({
   placeholder?: string;
 }) => {
   const flatListRef = useRef<FlatList>(null);
-  const selectedIndex = data.indexOf(selectedCurrency);
-  const initialScrollDone = useRef(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [displayData, setDisplayData] = useState(data);
+  const [filteredData, setFilteredData] = useState(data);
+  const initialScrollDone = useRef(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const handleSearch = (text: string) => {
-    setSearchQuery(text);
-    const searchTerm = text.toLowerCase().trim();
-    
-    if (!searchTerm) {
-      setDisplayData(data);
-      return;
-    }
+  const scrollToSelected = useCallback(() => {
+    if (!selectedCurrency || searchQuery) return;
 
-    const filtered = data.filter(currency => {
-      // Search by currency code
-      if (currency.toLowerCase().includes(searchTerm)) {
-        return true;
-      }
+    const selectedIndex = filteredData.indexOf(selectedCurrency);
+    if (selectedIndex === -1) return;
 
-      // Search by country name
-      const countryEntries = Object.entries(countryToCurrency);
-      return countryEntries.some(([country, code]) => {
-        return country.toLowerCase().includes(searchTerm) && code === currency;
+    // Calculate the center offset
+    const itemWidth = BUTTON_WIDTH + BUTTON_MARGIN;
+    const screenWidth = SCREEN_WIDTH;
+    const centerOffset = (screenWidth - itemWidth) / 2;
+    const scrollPosition = itemWidth * selectedIndex - centerOffset;
+
+    // Ensure we don't scroll past the bounds
+    const maxScroll = itemWidth * filteredData.length - screenWidth;
+    const finalOffset = Math.max(0, Math.min(scrollPosition, maxScroll));
+
+    requestAnimationFrame(() => {
+      flatListRef.current?.scrollToOffset({
+        offset: finalOffset,
+        animated: true
       });
     });
+  }, [selectedCurrency, filteredData, searchQuery]);
 
-    setDisplayData(filtered);
-  };
-
-  const scrollToSelected = () => {
-    if (selectedIndex !== -1 && flatListRef.current && !searchQuery) {
-      const offset = selectedIndex * (BUTTON_WIDTH + BUTTON_MARGIN) - (SCREEN_WIDTH - BUTTON_WIDTH) / 2;
-      flatListRef.current.scrollToOffset({
-        offset: Math.max(0, offset),
-        animated: true,
-      });
+  // Initial scroll to selected currency
+  useEffect(() => {
+    if (!initialScrollDone.current && filteredData.length > 0) {
+      initialScrollDone.current = true;
+      scrollToSelected();
     }
-  };
+  }, [filteredData, scrollToSelected]);
 
-  const handleCurrencySelect = (currency: string) => {
+  // Scroll when selected currency changes
+  useEffect(() => {
+    if (initialScrollDone.current && !searchQuery) {
+      scrollToSelected();
+    }
+  }, [selectedCurrency, scrollToSelected]);
+
+  const handleSearch = useCallback((text: string) => {
+    setSearchQuery(text);
+    if (!text.trim()) {
+      setFilteredData(data);
+      // Reset scroll position after search is cleared
+      setTimeout(scrollToSelected, 100);
+    } else {
+      const searchTerm = text.toLowerCase().trim();
+      const filtered = data.filter(currency => {
+        if (currency.toLowerCase().includes(searchTerm)) {
+          return true;
+        }
+
+        const countryMatch = Object.entries(countryToCurrency).find(
+          ([_, code]) => code === currency
+        );
+
+        if (countryMatch) {
+          const [countryName] = countryMatch;
+          return countryName.toLowerCase().includes(searchTerm);
+        }
+
+        return false;
+      });
+      setFilteredData(filtered);
+      
+      // Force layout update on Android
+      if (Platform.OS === 'android') {
+        setTimeout(() => {
+          flatListRef.current?.scrollToOffset({ offset: 0, animated: false });
+          requestAnimationFrame(() => {
+            if (filtered.length > 0) {
+              const selectedIndex = filtered.indexOf(selectedCurrency);
+              const firstResultIndex = 0;
+              const indexToUse = selectedIndex >= 0 ? selectedIndex : firstResultIndex;
+              
+              const itemWidth = BUTTON_WIDTH + BUTTON_MARGIN;
+              const screenWidth = SCREEN_WIDTH;
+              const centerOffset = (screenWidth - itemWidth) / 2;
+              const scrollPosition = itemWidth * indexToUse - centerOffset;
+              
+              flatListRef.current?.scrollToOffset({
+                offset: Math.max(0, scrollPosition),
+                animated: true
+              });
+            }
+          });
+        }, 50);
+      }
+    }
+    setRefreshTrigger(prev => prev + 1);
+  }, [data, scrollToSelected, selectedCurrency]);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery("");
+    setFilteredData(data);
+    // Reset scroll position after clearing search
+    setTimeout(scrollToSelected, 100);
+  }, [data, scrollToSelected]);
+
+  const handleSelectCurrency = useCallback((currency: string) => {
+    Keyboard.dismiss();
     onSelect(currency);
     setSearchQuery("");
-    setDisplayData(data);
-    setTimeout(() => {
-      scrollToSelected();
-    }, 100);
-  };
-
-  useEffect(() => {
-    if (!searchQuery && !initialScrollDone.current) {
-      scrollToSelected();
-      initialScrollDone.current = true;
-    } else if (!searchQuery) {
-      const timer = setTimeout(scrollToSelected, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [selectedCurrency, searchQuery]);
+    setFilteredData(data);
+    // Scroll to the newly selected currency
+    setTimeout(scrollToSelected, 100);
+  }, [onSelect, data, scrollToSelected]);
 
   return (
-    <View>
-      <TextInput
-        style={[
-          styles.searchInput,
-          {
-            backgroundColor: theme.background,
-            color: theme.text,
-            borderColor: theme.lightGray,
-          },
-        ]}
-        value={searchQuery}
-        onChangeText={handleSearch}
-        placeholder={placeholder}
-        placeholderTextColor={theme.lightGray}
-        returnKeyType="done"
-        autoCapitalize="none"
-        autoCorrect={false}
-        blurOnSubmit={true}
-        enablesReturnKeyAutomatically={true}
-      />
-      <View style={styles.listContainer}>
-        <LinearGradient
-          colors={[theme.card, `${theme.card}00`]}
-          locations={[0.3, 1]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.fadeLeft}
-          pointerEvents="none"
+    <View style={{ marginBottom: 20 }}>
+      <View style={styles.searchInputContainer}>
+        <TextInput
+          style={[
+            styles.searchInput,
+            {
+              backgroundColor: theme.background,
+              color: theme.text,
+              borderColor: theme.lightGray,
+            },
+          ]}
+          value={searchQuery}
+          onChangeText={handleSearch}
+          placeholder={placeholder}
+          placeholderTextColor={theme.lightGray}
+          returnKeyType="done"
+          autoCapitalize="none"
+          autoCorrect={false}
         />
-        <LinearGradient
-          colors={[`${theme.card}00`, theme.card]}
-          locations={[0, 0.7]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.fadeRight}
-          pointerEvents="none"
-        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity
+            style={styles.clearButton}
+            onPress={handleClearSearch}
+          >
+            <Ionicons name="close-circle" size={20} color={theme.gray} />
+          </TouchableOpacity>
+        )}
+      </View>
+      <View style={[styles.listContainer, { backgroundColor: theme.card }]}>
         <FlatList
           ref={flatListRef}
           horizontal
           showsHorizontalScrollIndicator={false}
-          data={displayData}
-          keyExtractor={(item) => item}
+          data={filteredData}
+          extraData={[searchQuery, refreshTrigger]}
+          keyExtractor={(item) => `${item}-${refreshTrigger}`}
           renderItem={({ item }) => (
             <CurrencyButton
               currency={item}
               selected={selectedCurrency === item}
-              onPress={() => handleCurrencySelect(item)}
+              onPress={() => handleSelectCurrency(item)}
               theme={theme}
             />
           )}
-          style={styles.currencyList}
+          style={[styles.currencyList, { minHeight: 70 }]}
           contentContainerStyle={[
             styles.currencyListContent,
-            { 
-              paddingHorizontal: (SCREEN_WIDTH - BUTTON_WIDTH) / 2,
-              paddingVertical: 4,
-            },
+            filteredData.length === 0 && { flex: 1, justifyContent: 'center' }
           ]}
           getItemLayout={(_, index) => ({
             length: BUTTON_WIDTH + BUTTON_MARGIN,
             offset: (BUTTON_WIDTH + BUTTON_MARGIN) * index,
             index,
           })}
-          initialScrollIndex={selectedIndex}
-          keyboardShouldPersistTaps="always"
+          ListEmptyComponent={() => (
+            <Text style={[styles.emptyText, { color: theme.gray }]}>
+              No currencies found
+            </Text>
+          )}
           removeClippedSubviews={false}
+          initialNumToRender={20}
+          maxToRenderPerBatch={20}
+          windowSize={10}
+          updateCellsBatchingPeriod={10}
+          keyboardShouldPersistTaps="always"
+          decelerationRate="fast"
+          snapToAlignment="center"
         />
       </View>
     </View>
@@ -436,6 +492,10 @@ export default function HomeScreen() {
     };
   }, []);
 
+  const handleClearAmount = () => {
+    setAmount('');
+  };
+
   if (loading) {
     return (
       <View style={[
@@ -470,14 +530,16 @@ export default function HomeScreen() {
       >
         <View style={[styles.card, { backgroundColor: theme.card }]}>
           <Text style={[styles.label, { color: theme.text }]}>{t('home.amount')}</Text>
-          <TextInput
-            style={[styles.input, { color: theme.text, backgroundColor: theme.background }]}
-            value={amount}
-            onChangeText={setAmount}
-            keyboardType="numeric"
-            placeholder={t('home.enterAmount')}
-            placeholderTextColor={theme.lightGray}
-          />
+          <View style={styles.searchInputContainer}>
+            <TextInput
+              style={[styles.input, { color: theme.text, backgroundColor: theme.background }]}
+              value={amount}
+              onChangeText={setAmount}
+              keyboardType="numeric"
+              placeholder={t('home.enterAmount')}
+              placeholderTextColor={theme.lightGray}
+            />
+          </View>
 
           <Text style={[styles.label, { color: theme.text }]}>{t('home.from')}</Text>
           <Animated.View style={fromAnimatedStyle}>
@@ -550,6 +612,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 20,
     fontSize: 16,
+    flex: 1,
+    borderWidth: 1,
+    ...Platform.select({
+      android: {
+        paddingVertical: 8,
+      },
+    }),
   },
   resultContainer: {
     alignItems: 'center',
@@ -575,10 +644,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   currencyList: {
-    flexGrow: 0,
+    flex: 1,
+    minHeight: 60,
   },
   currencyListContent: {
-    paddingRight: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 4,
+    flexGrow: 0,
   },
   currencyButton: {
     paddingHorizontal: 16,
@@ -636,6 +708,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
   },
+  searchInputContainer: {
+    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
   searchInput: {
     height: 40,
     borderRadius: 10,
@@ -644,15 +722,30 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontSize: 14,
     borderWidth: 1,
+    flex: 1,
     ...Platform.select({
       android: {
         paddingVertical: 8,
       },
     }),
   },
+  clearButton: {
+    position: 'absolute',
+    right: 10,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 5,
+    zIndex: 1,
+  },
   listContainer: {
-    position: 'relative',
+    height: 70,
     marginHorizontal: -20,
+    ...Platform.select({
+      android: {
+        elevation: 0,
+      },
+    }),
   },
   fadeLeft: {
     position: 'absolute',
@@ -660,7 +753,11 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 60,
-    zIndex: 1,
+    ...Platform.select({
+      android: {
+        elevation: 0,
+      },
+    }),
   },
   fadeRight: {
     position: 'absolute',
@@ -668,6 +765,15 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 60,
-    zIndex: 1,
+    ...Platform.select({
+      android: {
+        elevation: 0,
+      },
+    }),
+  },
+  emptyText: {
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 }); 
