@@ -2,8 +2,8 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Platform } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { StyleSheet, Platform, View, Text, Image } from 'react-native';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { enableScreens } from 'react-native-screens';
 import 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,6 +16,27 @@ enableScreens();
 
 const Tab = createBottomTabNavigator();
 
+const CustomHeader = ({ theme }: { theme: typeof colors }) => {
+  const insets = useSafeAreaInsets();
+  return (
+    <View style={[
+      styles.headerContainer, 
+      { 
+        backgroundColor: theme.card,
+        paddingTop: Math.max(insets.top + 10, Platform.OS === 'ios' ? 50 : 45),
+      }
+    ]}>
+      <View style={styles.headerContent}>
+        <Ionicons name="trending-up" size={24} color={theme.primary} style={styles.headerIcon} />
+        <View>
+          <Text style={[styles.headerTitle, { color: theme.text }]}>Currency Converter</Text>
+          <Text style={[styles.headerSubtitle, { color: theme.gray }]}>Live Exchange Rates</Text>
+        </View>
+      </View>
+    </View>
+  );
+};
+
 function TabNavigator() {
   const { theme, isDarkMode } = useTheme();
 
@@ -25,7 +46,7 @@ function TabNavigator() {
       <Tab.Navigator
         screenOptions={({ route }) => ({
           headerStyle: {
-            backgroundColor: theme.background,
+            backgroundColor: theme.card,
           },
           headerTintColor: theme.text,
           headerShadowVisible: false,
@@ -76,7 +97,7 @@ function TabNavigator() {
           name="Convert"
           component={HomeScreen}
           options={{
-            title: 'Currency Converter',
+            header: () => <CustomHeader theme={theme} />,
           }}
         />
         <Tab.Screen
@@ -104,5 +125,29 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  headerContainer: {
+    paddingBottom: 15,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerIcon: {
+    marginRight: 12,
+    backgroundColor: `${colors.primary}15`,
+    padding: 8,
+    borderRadius: 12,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  headerSubtitle: {
+    fontSize: 13,
+    marginTop: 2,
   },
 });
