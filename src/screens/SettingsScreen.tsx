@@ -7,10 +7,47 @@ import {
   TouchableOpacity,
   Platform,
   Linking,
+  ScrollView,
 } from 'react-native';
 import { colors } from '../theme/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../theme/ThemeContext';
+import { colorSchemes, ColorScheme } from '../theme/colors';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+type RootStackParamList = {
+  Settings: undefined;
+  PrivacyPolicy: undefined;
+};
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
+
+const ColorSchemeButton = ({
+  scheme,
+  isSelected,
+  onPress,
+  theme,
+}: {
+  scheme: ColorScheme;
+  isSelected: boolean;
+  onPress: () => void;
+  theme: typeof colors;
+}) => (
+  <TouchableOpacity
+    style={[
+      styles.colorSchemeButton,
+      {
+        backgroundColor: colorSchemes[scheme].colors.primary,
+        borderColor: isSelected ? theme.primary : 'transparent',
+        borderWidth: isSelected ? 2 : 0,
+      },
+    ]}
+    onPress={onPress}
+  >
+    <Text style={styles.colorSchemeName}>{colorSchemes[scheme].name}</Text>
+  </TouchableOpacity>
+);
 
 const SettingsOption = ({
   title,
@@ -34,8 +71,9 @@ const SettingsOption = ({
 );
 
 export default function SettingsScreen() {
-  const { theme, isDarkMode, toggleTheme } = useTheme();
+  const { theme, isDarkMode, toggleTheme, colorScheme, setColorScheme } = useTheme();
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<NavigationProp>();
 
   const handleRateApp = () => {
     const storeUrl = Platform.select({
@@ -52,19 +90,22 @@ export default function SettingsScreen() {
   };
 
   const handlePrivacyPolicy = () => {
-    Linking.openURL('https://your-website.com/privacy-policy');
+    navigation.navigate('PrivacyPolicy');
   };
 
   return (
-    <View
+    <ScrollView
       style={[
         styles.container,
         {
           backgroundColor: theme.background,
-          paddingTop: Platform.OS === 'ios' ? 20 : insets.top + 20,
-          paddingBottom: insets.bottom,
         },
       ]}
+      contentContainerStyle={{
+        paddingTop: Platform.OS === 'ios' ? 20 : insets.top + 20,
+        paddingBottom: insets.bottom + 20,
+      }}
+      showsVerticalScrollIndicator={false}
     >
       <View style={[styles.card, { backgroundColor: theme.card }]}>
         <Text style={[styles.sectionTitle, { color: theme.text }]}>Appearance</Text>
@@ -80,6 +121,19 @@ export default function SettingsScreen() {
             />
           }
         />
+
+        <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 20 }]}>Color Scheme</Text>
+        <View style={styles.colorSchemeContainer}>
+          {(Object.keys(colorSchemes) as ColorScheme[]).map((scheme) => (
+            <ColorSchemeButton
+              key={scheme}
+              scheme={scheme}
+              isSelected={colorScheme === scheme}
+              onPress={() => setColorScheme(scheme)}
+              theme={theme}
+            />
+          ))}
+        </View>
 
         <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 20 }]}>Support</Text>
         <SettingsOption
@@ -112,7 +166,7 @@ export default function SettingsScreen() {
           Version 1.0.0
         </Text>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -164,5 +218,33 @@ const styles = StyleSheet.create({
     marginTop: 20,
     textAlign: 'center',
     fontSize: 14,
+  },
+  colorSchemeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+  },
+  colorSchemeButton: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginHorizontal: 5,
+    ...Platform.select({
+      ios: {
+        shadowColor: colors.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
+  },
+  colorSchemeName: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
   },
 }); 
