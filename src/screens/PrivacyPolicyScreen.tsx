@@ -70,11 +70,11 @@ export default function PrivacyPolicyScreen() {
 
         <Text style={[styles.sectionTitle, { color: theme.text }]}>Contact Us</Text>
         <Text style={[styles.paragraph, { color: theme.text }]}>
-          If you have any questions about this privacy policy or our practices, please contact us at support@currencyconverter.com
+          If you have any questions about this privacy policy or our practices, please contact us at ahlgren1234@gmail.com
         </Text>
 
         <Text style={[styles.lastUpdated, { color: theme.gray }]}>
-          Last updated: May 2024
+          Last updated: February 2025
         </Text>
       </View>
     </ScrollView>
