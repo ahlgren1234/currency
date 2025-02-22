@@ -174,6 +174,10 @@ export default function SettingsScreen() {
     navigation.navigate('PrivacyPolicy');
   };
 
+  const handleSupportMe = () => {
+    Linking.openURL('https://buymeacoffee.com/peterahlgren');
+  };
+
   return (
     <ScrollView
       style={[
@@ -237,6 +241,11 @@ export default function SettingsScreen() {
         <SettingsOption
           title={t('settings.privacyPolicy')}
           onPress={handlePrivacyPolicy}
+          theme={theme}
+        />
+        <SettingsOption
+          title={t('settings.supportMe')}
+          onPress={handleSupportMe}
           theme={theme}
         />
 

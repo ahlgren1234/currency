@@ -8,8 +8,8 @@ export default {
     amount: 'Cantidad',
     from: 'De',
     to: 'A',
-    searchFrom: 'Buscar moneda de origen',
-    searchTo: 'Buscar moneda de destino',
+    searchFrom: 'Buscar por moneda o país',
+    searchTo: 'Buscar por moneda o país',
     enterAmount: 'Ingrese la cantidad',
   },
   settings: {
@@ -25,6 +25,7 @@ export default {
     selectLanguage: 'Seleccionar Idioma',
     aboutText: 'Un conversor de moneda simple y elegante que te ayuda a convertir entre diferentes monedas en tiempo real. Las características incluyen tasas de cambio en vivo, soporte para modo oscuro y una hermosa interfaz con banderas de países.',
     exchangeRateInfo: 'Las tasas de cambio se actualizan cada hora usando datos de exchangerate-api.com.',
+    supportMe: 'Apóyame ☕',
   },
   colorSchemes: {
     orange: 'Atardecer Naranja',
