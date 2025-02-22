@@ -11,8 +11,10 @@ import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from './src/screens/HomeScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import PrivacyPolicyScreen from './src/screens/PrivacyPolicyScreen';
+import BugReportScreen from './src/screens/BugReportScreen';
 import { colors } from './src/theme/colors';
 import { ThemeProvider, useTheme } from './src/theme/ThemeContext';
+import { LanguageProvider, useLanguage } from './src/i18n/LanguageContext';
 
 enableScreens();
 
@@ -21,6 +23,7 @@ const Stack = createNativeStackNavigator();
 
 const CustomHeader = ({ theme }: { theme: typeof colors }) => {
   const insets = useSafeAreaInsets();
+  const { t } = useLanguage();
   return (
     <View style={[
       styles.headerContainer, 
@@ -32,8 +35,8 @@ const CustomHeader = ({ theme }: { theme: typeof colors }) => {
       <View style={styles.headerContent}>
         <Ionicons name="trending-up" size={24} color={theme.primary} style={styles.headerIcon} />
         <View>
-          <Text style={[styles.headerTitle, { color: theme.text }]}>Currency Converter</Text>
-          <Text style={[styles.headerSubtitle, { color: theme.gray }]}>Live Exchange Rates</Text>
+          <Text style={[styles.headerTitle, { color: theme.text }]}>{t('home.title')}</Text>
+          <Text style={[styles.headerSubtitle, { color: theme.gray }]}>{t('home.subtitle')}</Text>
         </View>
       </View>
     </View>
@@ -62,6 +65,14 @@ const SettingsStack = () => {
         component={PrivacyPolicyScreen}
         options={{
           title: 'Privacy Policy',
+          headerBackTitle: 'Back',
+        }}
+      />
+      <Stack.Screen
+        name="BugReport"
+        component={BugReportScreen}
+        options={{
+          title: 'Report Bug',
           headerBackTitle: 'Back',
         }}
       />
@@ -144,11 +155,13 @@ function TabNavigator() {
 export default function App() {
   return (
     <ThemeProvider>
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <TabNavigator />
-        </NavigationContainer>
-      </SafeAreaProvider>
+      <LanguageProvider>
+        <SafeAreaProvider>
+          <NavigationContainer>
+            <TabNavigator />
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </LanguageProvider>
     </ThemeProvider>
   );
 }

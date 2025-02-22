@@ -28,6 +28,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { useTheme } from '../theme/ThemeContext';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const API_KEY = '062578696d00dab96b6c2855'; // You'll need to replace this with a real API key
 const API_URL = 'https://api.exchangerate-api.com/v4/latest/USD';
@@ -285,6 +286,7 @@ export default function HomeScreen() {
   const [exchangeRates, setExchangeRates] = useState<ExchangeRates>({});
   const [loading, setLoading] = useState(true);
   const { theme } = useTheme();
+  const { t } = useLanguage();
   const insets = useSafeAreaInsets();
   const [isSwapping, setIsSwapping] = useState(false);
   const fromAnimation = useSharedValue(0);
@@ -451,24 +453,24 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.card, { backgroundColor: theme.card }]}>
-          <Text style={[styles.label, { color: theme.text }]}>Amount</Text>
+          <Text style={[styles.label, { color: theme.text }]}>{t('home.amount')}</Text>
           <TextInput
             style={[styles.input, { color: theme.text, backgroundColor: theme.background }]}
             value={amount}
             onChangeText={setAmount}
             keyboardType="numeric"
-            placeholder="Enter amount"
+            placeholder={t('home.enterAmount')}
             placeholderTextColor={theme.lightGray}
           />
 
-          <Text style={[styles.label, { color: theme.text }]}>From</Text>
+          <Text style={[styles.label, { color: theme.text }]}>{t('home.from')}</Text>
           <Animated.View style={fromAnimatedStyle}>
             <CurrencyList
               data={Object.keys(exchangeRates)}
               selectedCurrency={fromCurrency}
               onSelect={setFromCurrency}
               theme={theme}
-              placeholder="Search from currency"
+              placeholder={t('home.searchFrom')}
             />
           </Animated.View>
 
@@ -476,14 +478,14 @@ export default function HomeScreen() {
             <SwapButton onPress={handleSwapCurrencies} theme={theme} isAnimating={isSwapping} />
           </View>
 
-          <Text style={[styles.label, { color: theme.text }]}>To</Text>
+          <Text style={[styles.label, { color: theme.text }]}>{t('home.to')}</Text>
           <Animated.View style={toAnimatedStyle}>
             <CurrencyList
               data={Object.keys(exchangeRates)}
               selectedCurrency={toCurrency}
               onSelect={setToCurrency}
               theme={theme}
-              placeholder="Search to currency"
+              placeholder={t('home.searchTo')}
             />
           </Animated.View>
 
