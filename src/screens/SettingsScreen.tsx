@@ -260,7 +260,7 @@ export default function SettingsScreen() {
         </View>
 
         <Text style={[styles.version, { color: theme.gray }]}>
-          {t('settings.version', { version: '0.1.0' })}
+          {t('settings.version', { version: '1.0.0' })}
         </Text>
       </View>
 
