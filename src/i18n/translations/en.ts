@@ -8,8 +8,8 @@ export default {
     amount: 'Amount',
     from: 'From',
     to: 'To',
-    searchFrom: 'Search from currency',
-    searchTo: 'Search to currency',
+    searchFrom: 'Search by currency or country',
+    searchTo: 'Search by currency or country',
     enterAmount: 'Enter amount',
   },
   settings: {
@@ -25,6 +25,7 @@ export default {
     selectLanguage: 'Select Language',
     aboutText: 'A simple and elegant currency converter that helps you convert between different currencies in real-time. Features include live exchange rates, dark mode support, and a beautiful interface with country flags.',
     exchangeRateInfo: 'Exchange rates are updated hourly using data from exchangerate-api.com.',
+    supportMe: 'Support Me ☕',
   },
   colorSchemes: {
     orange: 'Orange Sunset',

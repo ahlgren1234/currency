@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -12,6 +12,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import PrivacyPolicyScreen from './src/screens/PrivacyPolicyScreen';
 import BugReportScreen from './src/screens/BugReportScreen';
+import SplashScreen from './src/screens/SplashScreen';
 import { colors } from './src/theme/colors';
 import { ThemeProvider, useTheme } from './src/theme/ThemeContext';
 import { LanguageProvider, useLanguage } from './src/i18n/LanguageContext';
@@ -152,14 +153,34 @@ function TabNavigator() {
   );
 }
 
+function AppContent() {
+  const { theme, isDarkMode } = useTheme();
+  const [isLoading, setIsLoading] = useState(true);
+
+  const handleSplashComplete = useCallback(() => {
+    setIsLoading(false);
+  }, []);
+
+  return (
+    <>
+      <StatusBar style={isDarkMode ? 'light' : 'dark'} />
+      {isLoading ? (
+        <SplashScreen onAnimationComplete={handleSplashComplete} />
+      ) : (
+        <NavigationContainer>
+          <TabNavigator />
+        </NavigationContainer>
+      )}
+    </>
+  );
+}
+
 export default function App() {
   return (
     <ThemeProvider>
       <LanguageProvider>
         <SafeAreaProvider>
-          <NavigationContainer>
-            <TabNavigator />
-          </NavigationContainer>
+          <AppContent />
         </SafeAreaProvider>
       </LanguageProvider>
     </ThemeProvider>

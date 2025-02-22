@@ -29,6 +29,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useTheme } from '../theme/ThemeContext';
 import { useLanguage } from '../i18n/LanguageContext';
+import { countryToCurrency } from '../utils/currencyData';
 
 const API_KEY = '062578696d00dab96b6c2855'; // You'll need to replace this with a real API key
 const API_URL = 'https://api.exchangerate-api.com/v4/latest/USD';
@@ -139,11 +140,26 @@ const CurrencyList = ({
 
   const handleSearch = (text: string) => {
     setSearchQuery(text);
-    const filtered = text.trim()
-      ? data.filter(currency => 
-          currency.toLowerCase().includes(text.toLowerCase().trim())
-        )
-      : data;
+    const searchTerm = text.toLowerCase().trim();
+    
+    if (!searchTerm) {
+      setDisplayData(data);
+      return;
+    }
+
+    const filtered = data.filter(currency => {
+      // Search by currency code
+      if (currency.toLowerCase().includes(searchTerm)) {
+        return true;
+      }
+
+      // Search by country name
+      const countryEntries = Object.entries(countryToCurrency);
+      return countryEntries.some(([country, code]) => {
+        return country.toLowerCase().includes(searchTerm) && code === currency;
+      });
+    });
+
     setDisplayData(filtered);
   };
 

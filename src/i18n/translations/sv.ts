@@ -8,8 +8,8 @@ export default {
     amount: 'Belopp',
     from: 'Från',
     to: 'Till',
-    searchFrom: 'Sök ursprungsvaluta',
-    searchTo: 'Sök målvaluta',
+    searchFrom: 'Sök efter valuta eller land',
+    searchTo: 'Sök efter valuta eller land',
     enterAmount: 'Ange belopp',
   },
   settings: {
@@ -25,6 +25,7 @@ export default {
     selectLanguage: 'Välj Språk',
     aboutText: 'En enkel och elegant valutaomvandlare som hjälper dig att konvertera mellan olika valutor i realtid. Funktioner inkluderar aktuella växelkurser, stöd för mörkt läge och ett vackert gränssnitt med landsflaggor.',
     exchangeRateInfo: 'Växelkurser uppdateras varje timme med data från exchangerate-api.com.',
+    supportMe: 'Stöd mig ☕',
   },
   colorSchemes: {
     orange: 'Orange Solnedgång',
