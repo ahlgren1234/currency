@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,17 +8,22 @@ import {
   Platform,
   Linking,
   ScrollView,
+  Modal,
+  FlatList,
 } from 'react-native';
 import { colors } from '../theme/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../theme/ThemeContext';
+import { useLanguage } from '../i18n/LanguageContext';
 import { colorSchemes, ColorScheme } from '../theme/colors';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
 
 type RootStackParamList = {
   Settings: undefined;
   PrivacyPolicy: undefined;
+  BugReport: undefined;
 };
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
@@ -33,21 +38,24 @@ const ColorSchemeButton = ({
   isSelected: boolean;
   onPress: () => void;
   theme: typeof colors;
-}) => (
-  <TouchableOpacity
-    style={[
-      styles.colorSchemeButton,
-      {
-        backgroundColor: colorSchemes[scheme].colors.primary,
-        borderColor: isSelected ? theme.primary : 'transparent',
-        borderWidth: isSelected ? 2 : 0,
-      },
-    ]}
-    onPress={onPress}
-  >
-    <Text style={styles.colorSchemeName}>{colorSchemes[scheme].name}</Text>
-  </TouchableOpacity>
-);
+}) => {
+  const { t } = useLanguage();
+  return (
+    <TouchableOpacity
+      style={[
+        styles.colorSchemeButton,
+        {
+          backgroundColor: colorSchemes[scheme].colors.primary,
+          borderColor: isSelected ? theme.primary : 'transparent',
+          borderWidth: isSelected ? 2 : 0,
+        },
+      ]}
+      onPress={onPress}
+    >
+      <Text style={styles.colorSchemeName}>{t(`colorSchemes.${scheme}`)}</Text>
+    </TouchableOpacity>
+  );
+};
 
 const SettingsOption = ({
   title,
@@ -70,10 +78,83 @@ const SettingsOption = ({
   </TouchableOpacity>
 );
 
+const LanguageSelector = ({
+  visible,
+  onClose,
+  theme,
+}: {
+  visible: boolean;
+  onClose: () => void;
+  theme: typeof colors;
+}) => {
+  const { language, setLanguage, supportedLanguages, t } = useLanguage();
+  const insets = useSafeAreaInsets();
+
+  const handleSelectLanguage = async (lang: string) => {
+    await setLanguage(lang);
+    onClose();
+  };
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <View
+        style={[
+          styles.modalContainer,
+          {
+            backgroundColor: `${theme.black}80`,
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom,
+          },
+        ]}
+      >
+        <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
+          <View style={styles.modalHeader}>
+            <Text style={[styles.modalTitle, { color: theme.text }]}>
+              {t('settings.selectLanguage')}
+            </Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Ionicons name="close" size={24} color={theme.text} />
+            </TouchableOpacity>
+          </View>
+          <FlatList
+            data={Object.entries(supportedLanguages)}
+            keyExtractor={([key]) => key}
+            renderItem={({ item: [key, value] }) => (
+              <TouchableOpacity
+                style={[
+                  styles.languageOption,
+                  {
+                    backgroundColor: language === key ? `${theme.primary}15` : 'transparent',
+                  },
+                ]}
+                onPress={() => handleSelectLanguage(key)}
+              >
+                <Text style={[styles.languageText, { color: theme.text }]}>
+                  {t(`languages.${key}`)}
+                </Text>
+                {language === key && (
+                  <Ionicons name="checkmark" size={24} color={theme.primary} />
+                )}
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
 export default function SettingsScreen() {
   const { theme, isDarkMode, toggleTheme, colorScheme, setColorScheme } = useTheme();
+  const { t } = useLanguage();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<NavigationProp>();
+  const [languageSelectorVisible, setLanguageSelectorVisible] = useState(false);
 
   const handleRateApp = () => {
     const storeUrl = Platform.select({
@@ -86,7 +167,7 @@ export default function SettingsScreen() {
   };
 
   const handleReportBug = () => {
-    Linking.openURL('mailto:your-support-email@example.com?subject=Bug%20Report');
+    navigation.navigate('BugReport');
   };
 
   const handlePrivacyPolicy = () => {
@@ -108,9 +189,9 @@ export default function SettingsScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View style={[styles.card, { backgroundColor: theme.card }]}>
-        <Text style={[styles.sectionTitle, { color: theme.text }]}>Appearance</Text>
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>{t('settings.appearance')}</Text>
         <SettingsOption
-          title="Dark Mode"
+          title={t('settings.darkMode')}
           theme={theme}
           rightElement={
             <Switch
@@ -122,7 +203,7 @@ export default function SettingsScreen() {
           }
         />
 
-        <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 20 }]}>Color Scheme</Text>
+        <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 20 }]}>{t('settings.colorScheme')}</Text>
         <View style={styles.colorSchemeContainer}>
           {(Object.keys(colorSchemes) as ColorScheme[]).map((scheme) => (
             <ColorSchemeButton
@@ -135,37 +216,50 @@ export default function SettingsScreen() {
           ))}
         </View>
 
-        <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 20 }]}>Support</Text>
+        <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 20 }]}>Language</Text>
         <SettingsOption
-          title="Rate App"
+          title="Language"
+          theme={theme}
+          onPress={() => setLanguageSelectorVisible(true)}
+        />
+
+        <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 20 }]}>{t('settings.support')}</Text>
+        <SettingsOption
+          title={t('settings.rateApp')}
           onPress={handleRateApp}
           theme={theme}
         />
         <SettingsOption
-          title="Report a Bug"
+          title={t('settings.reportBug')}
           onPress={handleReportBug}
           theme={theme}
         />
         <SettingsOption
-          title="Privacy Policy"
+          title={t('settings.privacyPolicy')}
           onPress={handlePrivacyPolicy}
           theme={theme}
         />
 
-        <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 20 }]}>About</Text>
+        <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 20 }]}>{t('settings.about')}</Text>
         <View style={styles.aboutContainer}>
           <Text style={[styles.aboutText, { color: theme.text }]}>
-            A simple and elegant currency converter that helps you convert between different currencies in real-time. Features include live exchange rates, dark mode support, and a beautiful interface with country flags.
+            {t('settings.aboutText')}
           </Text>
           <Text style={[styles.aboutText, { color: theme.text, marginTop: 8 }]}>
-            Exchange rates are updated hourly using data from exchangerate-api.com.
+            {t('settings.exchangeRateInfo')}
           </Text>
         </View>
 
         <Text style={[styles.version, { color: theme.gray }]}>
-          Version 1.0.0
+          {t('settings.version', { version: '0.1.0' })}
         </Text>
       </View>
+
+      <LanguageSelector
+        visible={languageSelectorVisible}
+        onClose={() => setLanguageSelectorVisible(false)}
+        theme={theme}
+      />
     </ScrollView>
   );
 }
@@ -246,5 +340,42 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '80%',
+    maxHeight: '70%',
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.lightGray,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  closeButton: {
+    padding: 4,
+  },
+  languageOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.lightGray,
+  },
+  languageText: {
+    fontSize: 16,
   },
 }); 
