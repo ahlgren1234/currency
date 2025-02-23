@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "solar-imprint-451809-m1",
+  "private_key_id": "f83605d078c5351fd4559daae41e7e97bceb4e79",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDfqN88RusDjWx/\nKelbZdlIJWgN6NnYON2Ftoi6P8tfoDahDEJcZm+zuEVOZ5rg8CcQvOd/iEQP0Apy\n3GTLGcl6K+fLVZGYrf+DvgnMGD1TQo4+8LI6c3tchIpNnGERQzUPou6g+rD75QV/\nAyrobE7CTt+SVilGUyYzAYy3WWlHHrmTLKsdGIBtrmfzQV9gDZ66eVgowBzDd66W\nBgtQX4A4Pw6Ua8SKWrkv8YeZ+dcSA2HQaFkKHPcEBxGzAxgTDgNpInWb0qOUgGxp\nNm+mqiZU/fKtqZyF/o+CeKpEof1ZzTNwwXnLcrspo959KntElwvfmhk6AcNFEXqo\nSgJuC8YPAgMBAAECggEAUprfYDbdI+G+2bSUEIKsXn4aUVDX7IkMIA+LriZTqczV\ngGOzusbGqLz9M/kF9eAcvYzXf33HjYOL6GJIA89RX4MJyEqhTJ+vCGxO2Ad31uF1\nAgAKA5aVUFVPc1y3aRXGajEGK4SLi21Ju2BjH5ao/BD/d9/EvMmHCT2gSDOIs5AP\nr81u5egeSsx3ghJE11OB4+Nx1Kq7WE5u0q7eF66316qtXvUyeRfzZyM6hQbLO9qK\nA0O0mYNAn44Mhk3qMBC6p30SrTfgzHtfB46aqLepoUx6dVopXzHaW8WVXijH4lXi\nIQMi+jTmqvARvbRM3UEo+czGpEGxX4y+4pNw0qLdaQKBgQD1m5PlEAU2m0BMLCK7\n62YRVxs2c7ZqQAjIAAsS4ArCSmhcLwe92satwwectQGBmfRR60RP5b5jXQ9kmJSO\n22F1k9c+t9vCw47NvLWtkyibViXW1wEnVNU610kCn4zCWqh14+ryz2IvV4RGwXWu\naByicpOtShnjL/2ajJszXkorhQKBgQDpH42Iv0Eql0oy2YOnZ6m/+HVpwzRHCU+K\nYVWs6EzgzkNImtvPHWCTMVzCSgi8KIRFNmFpXPm65HYzL6oWCp6o4pdUm1zSvvDt\nTIw94RiJmY209CuFxZ51LHjHMl7aEDoL/DxTFTzR7CIlHrX329UvnbibXyIqVg6t\nh1tjnabNgwKBgQCfZcH9JoGLqAR5qyc7uJF8bYDOvRhFKpvIWSbWsCqrX6kNMsSe\nda79tJZrIJoCp40F4V9rTxpZ2FqWGeRINp6wtSs7nA13AH3cjj2GkfwHnEhgfxdT\nlF3ymyfaGPw8YqP0JuAjh24cdXr2hLXAY/c5gozPKUlVxZ6cP+a11triFQKBgB6Z\nL6CVSd5nQSvvdOJSLuutluus3X29cR0+rVomm4CeUiKDgPpsZrKrNfuicAcSYlob\nSynjNDwdpI4PYYnHFxAfvbEzOznGKiVbeMTeeLQG3Zy0t8m1KJlEnw22RNDmdFgC\nYYCeNv9uuQSaRVQlHJRFZWevUvKvnPmV3J70oGI1AoGAILKrPMu27GuGVyGl/2sS\nrVs8RlxNKE3kRU0IT6odE740K2BQ6+zt6ppLdZCEt6Bm6+cCHD7Qn3SVXOUskdr6\nZ5RmvhETAwm9tnYkNeCA95vy5KDSIf0Tj4rnysiXuLTV2SmBYvp33/qgTD592lPG\nZyqpjmNokpVmRdgZssFmDrg=\n-----END PRIVATE KEY-----\n",
+  "client_email": "brainlab@solar-imprint-451809-m1.iam.gserviceaccount.com",
+  "client_id": "104455241855268438828",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/brainlab%40solar-imprint-451809-m1.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
