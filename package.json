@@ -1,6 +1,6 @@
 {
   "name": "currency",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
@@ -27,7 +27,8 @@
     "react-native-linear-gradient": "^2.8.3",
     "react-native-reanimated": "^3.16.7",
     "react-native-safe-area-context": "^5.2.0",
-    "react-native-screens": "^4.8.0"
+    "react-native-screens": "^4.8.0",
+    "expo-store-review": "~8.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
