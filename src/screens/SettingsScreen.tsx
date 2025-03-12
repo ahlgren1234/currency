@@ -157,9 +157,10 @@ export default function SettingsScreen() {
   const [languageSelectorVisible, setLanguageSelectorVisible] = useState(false);
 
   const handleRateApp = () => {
+    const androidPackageName = 'com.peterahlgren.currencyconverter';
     const storeUrl = Platform.select({
       ios: 'https://apps.apple.com/app/your-app-id',
-      android: 'https://play.google.com/store/apps/details?id=your.app.id',
+      android: `market://details?id=${androidPackageName}&showAllReviews=true`,
     });
     if (storeUrl) {
       Linking.openURL(storeUrl);

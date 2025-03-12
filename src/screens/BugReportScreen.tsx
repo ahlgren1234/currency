@@ -39,7 +39,7 @@ export default function BugReportScreen() {
       `App Version: ${require('../../app.json').expo.version}`
     );
 
-    const mailtoLink = `mailto:support@currencyconverter.com?subject=${subject}&body=${body}`;
+    const mailtoLink = `mailto:ahlgren1234@gmail.com?subject=${subject}&body=${body}`;
 
     Linking.canOpenURL(mailtoLink)
       .then((supported) => {
